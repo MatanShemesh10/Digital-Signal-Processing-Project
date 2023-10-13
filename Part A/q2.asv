@@ -1,0 +1,188 @@
+clear;clc;
+
+[x1,Fs_x1] = audioread('x1.mp4');
+T_x1=1/Fs_x1;
+[x2,Fs_x2] = audioread('x2.mp4');
+T_x2=1/Fs_x2;
+
+h=fir1(100,0.5,"low");  %בזמן בדיד!
+
+x1_DTFT=fftshift(fft(x1));
+magnitude_x1_DTFT=abs(x1_DTFT);
+db_x1=20*log10(magnitude_x1_DTFT);
+len_x1 = length(x1_DTFT);
+frequency_x1 = (0:len_x1-1)*(Fs_x1/len_x1);
+subplot(5,1,1);
+plot(frequency_x1,db_x1);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('x1[n] Magnitude of Fourier Transform');
+
+x2_DTFT=fftshift(fft(x2));
+magnitude_x2_DTFT=abs(x2_DTFT);
+db_x2=20*log10(magnitude_x2_DTFT);
+len_x2 = length(x2_DTFT);
+frequency_x2 = (0:len_x2-1)*(Fs_x2/len_x2);
+subplot(5,1,2);
+plot(frequency_x2,db_x2);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('x2[n] Magnitude of Fourier Transform');
+
+N2 = length(x2);
+n2 = 0 : N2-1;
+n2=n2.'; 
+z = x1 + ((-1).^n2).*x2;
+
+z_DTFT=fftshift(fft(z));
+magnitude_z_DTFT=abs(z_DTFT);
+db_z=20*log10(magnitude_z_DTFT);
+len_z = length(z_DTFT);
+Fs_z=lcm(Fs_x1, Fs_x2);
+frequency_z = (0:len_z-1)*(Fs_z/len_z);
+subplot(5,1,3);
+plot(frequency_z,db_z);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('z[n] Magnitude of Fourier Transform');
+
+h=fir1(100,0.5,"low");  
+h=h.';
+h_zeropad = [h; zeros(length(z)-length(h), 1)]; 
+
+y1 = conv(h_zeropad, z); 
+y1_DTFT = fftshift(fft(y1));  
+magnitude_y1_DTFT = abs(y1_DTFT);
+db_y1 = 20*log10(magnitude_y1_DTFT);
+len_y1 = length(y1_DTFT);
+Fs_y1 = Fs_z;
+frequency_y1 = (0:len_y1-1)*(Fs_y1/len_y1);
+subplot(5,1,4);
+plot(frequency_y1,db_y1);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('y1[n] Magnitude of Fourier Transform');
+
+% for y2
+N_z = length(z);
+n_z = 0 : N_z-1;
+n_z=n_z.';
+new_z = ((-1).^n_z).*z;
+
+h=fir1(100,0.5,"low");  
+h=h.';
+h_zeropad = [h; zeros(length(new_z)-length(h), 1)];
+
+y2 = conv(h_zeropad, new_z);
+y2_DTFT = fftshift(fft(y2));  
+magnitude_y2_DTFT = abs(y2_DTFT);
+db_y2 = 20*log10(magnitude_y2_DTFT);
+len_y2 = length(y2_DTFT);
+Fs_y2 = Fs_z;
+frequency_y2 = (0:len_y2-1)*(Fs_y2/len_y2);
+subplot(5,1,5);
+plot(frequency_y2,db_y2);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('y2[n] Magnitude of Fourier Transform');
+
+% sound(x1,Fs_x1); %birds
+% sound(x2,Fs_x2); %music
+% sound(z,Fs_z);   %birds dominant, music low in the end
+% sound(y1,Fs_y1); %birds dominant, music low in the end
+% sound(y2,Fs_y2); %only music  
+% clear sound
+
+
+%% Part 2
+figure;
+
+h=fir1(100,0.5,"low");  
+h=h.';
+h_zeropad = [h; zeros(length(x1)-length(h), 1)]; 
+
+p1=conv(x1,h_zeropad); 
+p1_DTFT=fftshift(fft(p1));
+magnitude_p1_DTFT=abs(p1_DTFT);
+db_p1=20*log10(magnitude_p1_DTFT);
+len_p1 = length(p1_DTFT);
+frequency_p1 = (0:len_p1-1)*(Fs_x1/len_p1);
+subplot(5,1,1);
+plot(frequency_p1,db_p1);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('p1[n] Magnitude of Fourier Transform');
+
+p2=conv(x2,h_zeropad); 
+p2_DTFT=fftshift(fft(p2));
+magnitude_p2_DTFT=abs(p2_DTFT);
+db_p2=20*log10(magnitude_p2_DTFT);
+len_p2 = length(p2_DTFT);
+frequency_p2 = (0:len_p2-1)*(Fs_x2/len_p2);
+subplot(5,1,2);
+plot(frequency_p2,db_p2);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('p2[n] Magnitude of Fourier Transform');
+
+p2_len = length(p2);
+n_p2 = 0 : p2_len-1;
+n_p2=n_p2.';
+z = p1 + ((-1).^n_p2).*p2;
+
+z_DTFT=fftshift(fft(z));  
+magnitude_z_DTFT=abs(z_DTFT);
+db_z=20*log10(magnitude_z_DTFT);
+len_z = length(z_DTFT);
+Fs_z=lcm(Fs_x1, Fs_x2);
+frequency_z = (0:len_z-1)*(Fs_z/len_z);
+subplot(5,1,3);
+plot(frequency_z,db_z);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('z[n] Magnitude of Fourier Transform');
+
+h=fir1(100,0.5,"low");  
+h=h.';
+h_zeropad = [h; zeros(length(z)-length(h), 1)];
+
+y1 = conv(h_zeropad, z); 
+y1_DTFT = fftshift(fft(y1));  
+magnitude_y1_DTFT = abs(y1_DTFT);
+db_y1 = 20*log10(magnitude_y1_DTFT);
+len_y1 = length(y1_DTFT);
+Fs_y1 = Fs_z;
+frequency_y1 = (0:len_y1-1)*(Fs_y1/len_y1);
+subplot(5,1,4);
+plot(frequency_y1,db_y1);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('y1[n] Magnitude of Fourier Transform');    
+
+N_z = length(z);
+n_z = 0 : N_z-1;
+n_z=n_z.';
+new_z = ((-1).^n_z).*z;
+
+h=fir1(100,0.5,"low");  
+h=h.';
+h_zeropad = [h; zeros(length(new_z)-length(h), 1)];
+
+y2 = conv(h_zeropad, new_z);
+y2_DTFT = fftshift(fft(y2));  
+magnitude_y2_DTFT = abs(y2_DTFT);
+db_y2 = 20*log10(magnitude_y2_DTFT);
+len_y2 = length(y2_DTFT);
+Fs_y2 = Fs_z;
+frequency_y2 = (0:len_y2-1)*(Fs_y2/len_y2);
+subplot(5,1,5);
+plot(frequency_y2,db_y2);
+xlabel('Frequency (Hz)');
+ylabel('Magnitude (dB)');
+title('y2[n] Magnitude of Fourier Transform');
+
+%sound(p1,Fs_x1)
+%sound(x1,Fs_x1)
+%sound(y2,Fs_y2)
+%sound(y1,Fs_y1)
+clear sound
